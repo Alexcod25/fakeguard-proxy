@@ -1,7 +1,7 @@
 const http = require('http');
 const https = require('https');
 
-const API_KEY = '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';
+const API_KEY = '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';
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,18 +16,34 @@ const server = http.createServer((req, res) => {
         hostname: 'api.anthropic.com',
         path: '/v1/messages',
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' }
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+          'anthropic-version': '2023-06-01'
+        }
       };
       const proxyReq = https.request(options, (proxyRes) => {
         let data = '';
         proxyRes.on('data', chunk => data += chunk);
-        proxyRes.on('end', () => { res.writeHead(proxyRes.statusCode, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }); res.end(data); });
+        proxyRes.on('end', () => {
+          res.writeHead(proxyRes.statusCode, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          });
+          res.end(data);
+        });
       });
-      proxyReq.on('error', (e) => { res.writeHead(500); res.end(JSON.stringify({ error: e.message })); });
+      proxyReq.on('error', (e) => {
+        res.writeHead(500);
+        res.end(JSON.stringify({ error: e.message }));
+      });
       proxyReq.write(body);
       proxyReq.end();
     });
-  } else { res.writeHead(200); res.end('FakeGuard Proxy running.'); }
+  } else {
+    res.writeHead(200);
+    res.end('FakeGuard Proxy running.');
+  }
 });
 
 const PORT = process.env.PORT || 3000;
